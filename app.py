@@ -9,7 +9,7 @@ import re
 import zipfile
 
 # 作業ディレクトリを構成
-project_dir = Path("/Users/medailab/projects/p_change/cancer-ppt-webapp")
+project_dir = Path("cancer-ppt-webapp")
 project_dir.mkdir(parents=True, exist_ok=True)
 
 
