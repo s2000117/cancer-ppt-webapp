@@ -6,14 +6,6 @@ from pptx.util import Inches
 from pathlib import Path
 import re
 
-import zipfile
-
-# 作業ディレクトリを構成
-project_dir = Path("cancer-ppt-webapp")
-project_dir.mkdir(parents=True, exist_ok=True)
-
-
-# ---------- Utility Functions ----------
 def load_clean_site_table(csv_path: str) -> pd.DataFrame:
     df = pd.read_csv(csv_path, encoding="utf-8-sig", header=0)
     df.columns = df.columns.map(lambda x: re.sub(r'\s+', '', str(x)))
@@ -38,14 +30,11 @@ def create_ppt_slide(prs, fig_path, title_text):
     slide.shapes.title.text = title_text
     slide.shapes.add_picture(str(fig_path), Inches(1), Inches(1.5), height=Inches(4.5))
 
-# ---------- Streamlit Web UI ----------
 st.title("📊 年齢階級別 がん罹患数 PPT作成 Webアプリ")
 
-# データ読み込み
 site_df = load_clean_site_table("部位別コード表_utf8.csv")
 number_df = load_number_data()
 
-# UI 選択肢
 years = list(range(2016, 2021))
 selected_year = st.selectbox("診断年を選択", years)
 
