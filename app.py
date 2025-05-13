@@ -48,6 +48,13 @@ selected_sex = st.selectbox("性別を選択", sex_options)
 site_list = ["全部位"] + site_df["部位"].tolist()
 selected_sites = st.multiselect("部位を選択（複数選択可）", site_list, default=["全部位"])
 
+# 🔽 この位置に追加してください
+if selected_sites:
+    target_sites = site_df["部位"].tolist() if "全部位" in selected_sites else selected_sites
+else:
+    st.warning("部位を選択してください")
+    target_sites = []  # 空リストとして処理スキップ
+
 if st.button("🌐 一括PPTスライド生成"):
     fig_dir = Path("figures")
     fig_dir.mkdir(exist_ok=True)
