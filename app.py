@@ -98,7 +98,8 @@ if st.button("🌐 一括PPTスライド生成"):
         except Exception as e:
             st.warning(f"⚠️ {site_name} の処理でエラー: {e}")
 
-    ppt_output_path = f"全部位_{selected_year}_{selected_sex}.pptx"
+    file_label = "全部位" if "全部位" in selected_sites else "_".join(selected_sites)
+    ppt_output_path = f"{file_label}_{selected_year}_{selected_sex}.pptx"
     prs.save(ppt_output_path)
     with open(ppt_output_path, "rb") as f:
         st.download_button("📥 PPTXをダウンロード", f, file_name=ppt_output_path)
