@@ -58,42 +58,48 @@ if st.button("🌐 一括PPTスライド生成"):
 
     target_sites = site_df["部位"].tolist() if "全部位" in selected_sites else selected_sites
 
-    for site_name in target_sites:
-        site_code = site_df[site_df["部位"] == site_name]["コード"].values[0]
-        fig, ax = plt.subplots(figsize=(12, 6))
-        highlight_age_groups(ax, ages)
+    # 性別ごとの処理を部位によって条件分岐させる
+for site_name in target_sites:
+    site_code = site_df[site_df["部位"] == site_name]["コード"].values[0]
+    fig, ax = plt.subplots(figsize=(12, 6))
+    highlight_age_groups(ax, ages)
 
-        try:
-            if selected_sex in ["男", "総数"]:
-                male_row = number_df[(number_df["コード"] == site_code) &
-                                     (number_df["性別"] == "男") &
-                                     (number_df["診断年"] == selected_year)].iloc[0]
+    try:
+        # 男性データが必要な部位（前立腺以外）
+        if selected_sex in ["男", "総数"] and site_name not in ["子宮", "子宮頸部", "子宮体部", "卵巣"]:
+            male_row = number_df[(number_df["コード"] == site_code) &
+                                 (number_df["性別"] == "男") &
+                                 (number_df["診断年"] == selected_year)]
+            if not male_row.empty:  # 男性データが存在する場合
                 male_by_age = male_row[age_columns].astype(float)
                 ax.plot(ages, male_by_age, label="男性", color="orange", marker="o")
 
-            if selected_sex in ["女", "総数"]:
-                female_row = number_df[(number_df["コード"] == site_code) &
-                                       (number_df["性別"] == "女") &
-                                       (number_df["診断年"] == selected_year)].iloc[0]
+        # 女性データが必要な部位（前立腺以外）
+        if selected_sex in ["女", "総数"] and site_name not in ["前立腺"]:
+            female_row = number_df[(number_df["コード"] == site_code) &
+                                   (number_df["性別"] == "女") &
+                                   (number_df["診断年"] == selected_year)]
+            if not female_row.empty:  # 女性データが存在する場合
                 female_by_age = female_row[age_columns].astype(float)
                 ax.plot(ages, female_by_age, label="女性", color="yellow", marker="o")
 
-            ax.set_title(f"{site_name}（{selected_year}年・{selected_sex}）", fontsize=14)
-            ax.set_xlabel("年齢階級")
-            ax.set_ylabel("罹患数")
-            ax.set_xticks(range(len(ages)))
-            ax.set_xticklabels(ages, rotation=45)
-            ax.legend(loc="upper center", ncol=2)
-            fig.tight_layout()
+        ax.set_title(f"{site_name}（{selected_year}年・{selected_sex}）", fontsize=14)
+        ax.set_xlabel("年齢階級")
+        ax.set_ylabel("罹患数")
+        ax.set_xticks(range(len(ages)))
+        ax.set_xticklabels(ages, rotation=45)
+        ax.legend(loc="upper center", ncol=2)
+        fig.tight_layout()
 
-            fig_path = fig_dir / f"{site_code}_{selected_year}_{selected_sex}.png"
-            fig.savefig(fig_path)
-            plt.close(fig)
+        fig_path = fig_dir / f"{site_code}_{selected_year}_{selected_sex}.png"
+        fig.savefig(fig_path)
+        plt.close(fig)
 
-            create_ppt_slide(prs, fig_path, f"{site_name}（{selected_year}年・{selected_sex}）")
+        create_ppt_slide(prs, fig_path, f"{site_name}（{selected_year}年・{selected_sex}）")
 
-        except Exception as e:
-            st.warning(f"⚠️ {site_name} の処理でエラー: {e}")
+    except Exception as e:
+        st.warning(f"⚠️ {site_name} の処理でエラー: {e}")
+
 
     ppt_output_path = f"全部位_{selected_year}_{selected_sex}.pptx"
     prs.save(ppt_output_path)
